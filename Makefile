@@ -1,16 +1,19 @@
-CFLAGS = -Wall -Iinclude
+CFLAGS = -Wall -Wextra -Iinclude
 
 all: hello
 
-lib/func.so: lib/func.c
-	gcc $(CFLAGS) -shared -fPIC -g -O2 lib/func.c -o lib/func.so
+lib/libfunc.so: FORCE
+	make --no-print-directory -C lib
 
-hellocmd: lib/func.so
-	gcc $(CFLAGS) src/main.c -o hellocmd lib/func.so
+src/hellocmd: lib/libfunc.so
+	make --no-print-directory -C src
 
-hello: hellocmd
-	@./hellocmd
+hello: src/hellocmd
+	@LD_LIBRARY_PATH=lib src/hellocmd
 
 clean:
-	rm -f ./hellocmd
-	rm -f lib/func.so
+	rm -f src/hellocmd
+	rm -f lib/libfunc.so
+
+FORCE:
+.PHONY: clean FORCE
